@@ -44,7 +44,7 @@ Here the installation settings that have been worked for me:
 * Timezone -> set to your timezone  
 * Automatic time sync (NTP -- default)  
 
-After rebooting into your fresh Arch install, run this command (that's a capital "o"):  
+After rebooting into your fresh Arch install, run this command (that's a capital "o", not a zero):  
 `wget -qO- https://solarvoid.com/archon | bash`
 
 This will set up the base system with all the default settings. Once that's done, the system will reboot and present you with a login screen. Login again with your Arch user, and welcome to the cutting edge of retro-future 90's!
