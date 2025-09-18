@@ -134,7 +134,7 @@ setup_docker_dbs() {
 }
 
 open_manual() {
-  setsid chromium --new-window --ozone-platform=x11 --app="https://www.windowmaker.org/" >/dev/null 2>&1 &
+  setsid chromium --new-window --ozone-platform=x11 --app="https://rmay.github.io/archon/" >/dev/null 2>&1 &
   clear
 }
 
