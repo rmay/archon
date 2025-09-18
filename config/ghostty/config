@@ -1,0 +1,4 @@
+config-file = "~/.config/archon/current/theme/ghostty.toml"
+
+font-family = "CaskaydiaMono Nerd Font"
+font-size = 12.0

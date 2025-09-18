@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+cd ~/.local/share/archon
+migration_file="$HOME/.local/share/archon/migrations/$(git log -1 --format=%cd --date=unix).sh"
+touch $migration_file
+nvim $migration_file
+echo -e "Run with:\nsource $migration_file"

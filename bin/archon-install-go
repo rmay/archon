@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+
+mise use --global go@latest
+
+# Go lang
+go install golang.org/x/tools/gopls@latest
+go install github.com/go-delve/delve/cmd/dlv@latest               # Debugger
+go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest  # Linter
+go install github.com/fatih/gomodifytags@latest                   # Struct tag tool
+go install github.com/josharian/impl@latest                       # Stub generator
+go install honnef.co/go/tools/cmd/staticcheck@latest              # Advanced analysis
+
+# Install Go extension in VS Code
+code --install-extension golang.Go
+
+# Create VS Code Go settings (in global settings.json)
+VSCODE_SETTINGS="$HOME/.config/Code/User/settings.json"
+
+# Ensure the settings file exists
+mkdir -p "$(dirname "$VSCODE_SETTINGS")"
+touch "$VSCODE_SETTINGS"
+
+# Update settings using jq (install jq if missing)
+if ! command -v jq &>/dev/null; then
+    echo "jq not found. Installing..."
+    brew install jq || sudo apt install -y jq || echo "Install jq manually."
+fi
+
+# Add/update Go settings in settings.json
+TMP_FILE=$(mktemp)
+
+jq '. + {
+  "go.useLanguageServer": true,
+  "go.formatTool": "gopls",
+  "go.lintTool": "golangci-lint",
+  "go.delveConfig": { "dlvLoadConfig": { "maxStringLen": 128 } },
+  "go.toolsManagement.autoUpdate": true
+}' "$VSCODE_SETTINGS" > "$TMP_FILE" && mv "$TMP_FILE" "$VSCODE_SETTINGS"
+
+echo "VS Code Go environment configured."

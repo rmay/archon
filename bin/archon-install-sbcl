@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+set -e
+
+# Function to check if a package is installed
+is_installed() {
+  pacman -Qq "$1" &>/dev/null
+}
+
+echo "Checking for SBCL..."
+
+# Install SBCL if not present
+if ! is_installed sbcl; then
+  echo "Installing SBCL (Steel Bank Common Lisp)..."
+  sudo pacman -S --noconfirm --needed sbcl
+else
+  echo "SBCL is already installed."
+fi
+
+# Install curl if missing (needed to fetch quicklisp)
+if ! is_installed curl; then
+  echo "Installing curl..."
+  sudo pacman -S --noconfirm --needed curl
+fi
+
+# Quicklisp installation directory
+QUICKLISP_DIR="$HOME/quicklisp"
+
+if [[ ! -d "$QUICKLISP_DIR" ]]; then
+  echo "Installing Quicklisp..."
+
+  # Download quicklisp installer
+  curl -O https://beta.quicklisp.org/quicklisp.lisp
+
+  # Run SBCL to install quicklisp
+  sbcl --non-interactive --load quicklisp.lisp \
+       --eval '(quicklisp-quickstart:install)' \
+       --eval '(ql:add-to-init-file)'
+
+  # Cleanup
+  rm -f quicklisp.lisp
+
+  echo "Quicklisp installed in $QUICKLISP_DIR"
+else
+  echo "Quicklisp is already installed in $QUICKLISP_DIR"
+fi
+
+# Test installation
+echo "Testing Quicklisp setup..."
+sbcl --non-interactive --eval '(require :quicklisp)' --eval '(quit)'
+
+echo "SBCL + Quicklisp installation complete!"

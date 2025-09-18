@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+set -e
+
+mise use --global java@openjdk-21
+
+# Install Maven and Gradle if missing
+for pkg in maven gradle; do
+  if ! is_installed "$pkg"; then
+    echo "Installing $pkg..."
+    sudo pacman -S --noconfirm --needed "$pkg"
+  else
+    echo "$pkg is already installed."
+  fi
+done
+
+# Set environment variables if not already in profile
+if ! grep -q "JAVA_HOME" ~/.bashrc; then
+  echo "Configuring JAVA_HOME in ~/.bashrc"
+  cat >> ~/.bashrc <<'EOF'
+
+# Java development environment
+export JAVA_HOME=/usr/lib/jvm/java-21-openjdk
+export PATH=$JAVA_HOME/bin:$PATH
+EOF
+fi
+
+echo "Java development environment setup complete!"

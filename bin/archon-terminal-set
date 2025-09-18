@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+NEW_TERMINAL="$1"
+
+cat > "$HOME/.terminalrc" <<EOF
+TERMINAL=$NEW_TERMINAL
+EOF

@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+
+# archon-theme-set: Set a theme, specified by its name.
+# Usage: archon-theme-set <theme-name>
+
+if [[ -z "$1" ]]; then
+  echo "Usage: archon-theme-set <theme-name>" >&2
+  exit 1
+fi
+
+THEMES_DIR="$HOME/.config/archon/themes/"
+CURRENT_THEME_DIR="$HOME/.config/archon/current/theme"
+
+THEME_NAME="$1"
+THEME_PATH="$THEMES_DIR/$THEME_NAME"
+
+# Check if the theme entered exists
+if [[ ! -d "$THEME_PATH" ]]; then
+  echo "Theme '$THEME_NAME' does not exist in $THEMES_DIR" >&2
+  exit 2
+fi
+
+# Update theme symlinks
+ln -nsf "$THEME_PATH" "$CURRENT_THEME_DIR"
+
+# Trigger alacritty config reload
+touch "$HOME/.config/alacritty/alacritty.toml"
+
+# Restart components to apply new theme
+pkill -SIGUSR2 btop
+
+xrdb -load "$CURRENT_THEME_DIR/$THEME_NAME.Xresources"
+killall -USR1 st 2>/dev/null
+
+ln -nsf "$CURRENT_THEME_DIR/rofi/config.rasi" "$HOME/.config/rofi/config.rasi"
+
+VSCODE_SETTINGS="$HOME/.config/Code/User/settings.json"
+VSCODE_THEME_FILE="$THEME_PATH/vscode-theme"
+VSCODE_ID_FILE="$THEME_PATH/vscode-theme-id"
+
+# Create VSCode settings.json if missing
+if [[ ! -f "$VSCODE_SETTINGS" ]]; then
+  mkdir -p "$(dirname "$VSCODE_SETTINGS")"
+  echo '{}' > "$VSCODE_SETTINGS"
+fi
+
+if [[ -f "$VSCODE_THEME_FILE" ]]; then
+  VSCODE_THEME=$(<"$VSCODE_THEME_FILE")
+
+  # Check and install extension if ID is provided
+  if [[ -f "$VSCODE_ID_FILE" ]]; then
+    VSCODE_EXTENSION_ID=$(<"$VSCODE_ID_FILE")
+    if ! code --list-extensions | grep -q "^$VSCODE_EXTENSION_ID$"; then
+      echo "Installing missing VSCode extension: $VSCODE_EXTENSION_ID"
+      code --install-extension "$VSCODE_EXTENSION_ID"
+    fi
+  fi
+
+  # Safely write the theme to settings.json
+  tmp_file=$(mktemp)
+  jq --arg theme "$VSCODE_THEME" '.["workbench.colorTheme"] = $theme' "$VSCODE_SETTINGS" > "$tmp_file" && mv "$tmp_file" "$VSCODE_SETTINGS"
+  echo "VSCode theme set to '$VSCODE_THEME'"
+ 
+fi
+
+# Doom Emacs integration
+echo "Setting Doom Emacs"
+archon-theme-set-doom "$THEME_NAME"
+
+
+# Set new background
+$HOME/.local/share/archon/bin/archon-theme-bg-next

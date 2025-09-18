@@ -1,0 +1,1 @@
+eval "$(wget -qO- https://vapor.solarvoid.com/russell/archon/raw/branch/master/boot.sh)"

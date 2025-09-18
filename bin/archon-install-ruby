@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+mise use --global ruby@latest
+
+gem install solargraph pry rubocop
+
+code --install-extension Shopify.ruby-extensions-pack
+code --install-extension castwide.solargraph

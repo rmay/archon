@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Archon
+Comment=Archon TUI
+Exec=alacritty --class=Archon --title=Archon -e bash -c '$HOME/.local/share/archon/bin/archon'
+Icon=Arch
+Terminal=false
+Categories=System;Utility;
+StartupNotify=false 

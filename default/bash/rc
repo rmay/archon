@@ -1,0 +1,7 @@
+source ~/.local/share/archon/default/bash/shell
+source ~/.local/share/archon/default/bash/aliases
+source ~/.local/share/archon/default/bash/functions
+source ~/.local/share/archon/default/bash/prompt
+source ~/.local/share/archon/default/bash/init
+source ~/.local/share/archon/default/bash/envs
+[[ $- == *i* ]] && bind -f ~/.local/share/archon/default/bash/inputrc

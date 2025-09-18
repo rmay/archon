@@ -1,0 +1,123 @@
+#!/usr/bin/env bash
+
+set -Eeuo pipefail
+
+# archon-theme-set-doom: Set Doom Emacs theme using a theme-specific Elisp script.
+# Usage: archon-theme-set-doom <theme-name>
+# Example: archon-theme-set-doom everforest
+# Looks for ~/.config/archon/themes/<theme-name>/doom-theme.el and falls back to
+# ~/.local/share/archon/elisp/default-doom-theme.el if not found.
+
+if [[ -z "$1" ]]; then
+  echo "Usage: archon-theme-set-doom <theme-name>" >&2
+  exit 1
+fi
+
+# Configuration
+THEMES_DIR="$HOME/.config/archon/themes/"
+CURRENT_THEME_DIR="$HOME/.config/archon/current/theme"
+THEME_NAME="$1"
+THEME_PATH="$THEMES_DIR/$THEME_NAME"
+PKG_MARK="ARCHON-AUTO-GENERATED:packages"
+CFG_MARK="ARCHON-AUTO-GENERATED:config"
+
+THEME_PACKAGES_FILE="$THEME_PATH/doom-packages.el"
+THEME_CONFIG_FILE="$THEME_PATH/doom-config.el"
+
+SOURCE_PACKAGES_FILE="$HOME/.config/doom/packages.el"
+SOURCE_CONFIG_FILE="$HOME/.config/doom/config.el"
+
+# Check if theme directory exists
+if [[ ! -d "$THEME_PATH" ]]; then
+  echo "Theme '$THEME_NAME' does not exist in $THEMES_DIR" >&2
+  exit 1
+fi
+
+timestamp() { date +"%Y%m%d-%H%M%S"; }
+
+backup_file() {
+  local f="$1"
+  [[ -f "$f" ]] || return 0
+  cp -a -- "$f" "$f.bak-$(timestamp)"
+}
+
+ensure_file() {
+  local f="$1"
+  [[ -f "$f" ]] || { mkdir -p -- "$(dirname "$f")"; : > "$f"; }
+}
+
+write_block() {
+  local file="$1" ; shift
+  local mark="$1" ; shift
+  local content="$1"
+
+  ensure_file "$file"
+  backup_file "$file"
+
+  # Use temporary file to assemble the new content
+  local tmp
+  tmp="$(mktemp)"
+
+  # If markers exist, replace the block; else, append a new block at end
+  if grep -q ";; BEGIN $mark" "$file"; then
+    awk -v mark="$mark" -v repl="$content" '
+      BEGIN { inblock=0 }
+      {
+        if ($0 ~ ";; BEGIN " mark) {
+          print $0
+          print repl
+          inblock=1
+          next
+        }
+        if ($0 ~ ";; END " mark) {
+          inblock=0
+          print $0
+          next
+        }
+        if (!inblock) print $0
+      }
+    ' "$file" > "$tmp"
+  else
+    cat >> "$tmp" <<EOF
+$(cat -- "$file")
+
+;; BEGIN $mark (do not edit within)
+$content
+;; END $mark
+EOF
+  fi
+
+  mv -- "$tmp" "$file"
+}
+
+main() {
+  # Fetch snippets
+  pkgs_data="$(cat "$THEME_PACKAGES_FILE")"
+  cfg_data="$(cat "$THEME_CONFIG_FILE")"
+
+  # Optionally wrap packages in a readable header if user snippet lacks it
+  [[ "$pkgs_data" == *"(package!"* || "$pkgs_data" == *"(use-package"* ]] || {
+    echo "WARN: The packages snippet doesn't look like Elisp (no (package!) or (use-package) seen)." >&2
+  }
+
+  ensure_file "$SOURCE_PACKAGES_FILE"
+  ensure_file "$SOURCE_CONFIG_FILE"
+
+  write_block "$SOURCE_PACKAGES_FILE" "$PKG_MARK" "$pkgs_data"
+  write_block "$SOURCE_CONFIG_FILE" "$CFG_MARK" "$cfg_data"
+
+  echo "Updated:"
+  echo "  - $SOURCE_PACKAGES_FILE  (block: $PKG_MARK)"
+  echo "  - $SOURCE_CONFIG_FILE    (block: $CFG_MARK)"
+
+
+  if command -v doom >/dev/null 2>&1; then
+    echo "Running: doom sync"
+    doom sync
+  else
+    echo "NOTE: 'doom' CLI not found on PATH; skipping 'doom sync'." >&2
+  fi
+
+}
+
+main "$@"

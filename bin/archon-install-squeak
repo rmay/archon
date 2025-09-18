@@ -1,0 +1,37 @@
+SQUEAK_HOME="$HOME/Squeak"
+SQUEAK_URL="https://files.squeak.org/6.0/Squeak6.0-22148-64bit/Squeak6.0-22148-64bit-202312181441-Linux-x64.tar.gz"
+SQUEAK_ARCHIVE="$(basename "$SQUEAK_URL")"
+SQUEAK_DIR="Squeak6.0-22148-64bit-202312181441-Linux-x64"
+TARGET_BIN="$HOME/.local/share/archon/bin"
+TARGET_APP="$HOME/.local/share/archon/applications"
+
+if [ ! -d "$SQUEAK_HOME" ]; then
+    echo "Squeak: Creating directory..."
+    mkdir -p "$SQUEAK_HOME"
+fi
+
+cd "$SQUEAK_HOME"
+
+if [ ! -f "$SQUEAK_ARCHIVE" ]; then
+    echo "Squeak: Downloading Squeak..."
+    wget "$SQUEAK_URL"
+fi
+
+echo "Squeak: Extracting archive..."
+tar xf "$SQUEAK_ARCHIVE"
+
+echo "Squeak: Creating symlink..."
+ln -sf "$SQUEAK_HOME/$SQUEAK_DIR/squeak.sh" "$TARGET_BIN/squeak.sh"
+
+echo "Squeak: Creating .desktop entry..."
+cat > "$TARGET_APP/Squeak.desktop" << EOF
+[Desktop Entry]
+Name=Squeak Smalltalk
+Exec=$SQUEAK_HOME/$SQUEAK_DIR/squeak.sh
+Icon=squeak
+Type=Application
+Categories=Development;Education;
+EOF
+
+echo "Squeak: Done. You can launch Squeak:"
+echo "$TARGET_BIN/squeak.sh"
