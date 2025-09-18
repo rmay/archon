@@ -17,7 +17,7 @@ sudo pacman -Sy --noconfirm --needed git
 
 echo -e "\nCloning Archon..."
 rm -rf ~/.local/share/archon/
-git clone https://vapor.solarvoid.com/russell/archon.git ~/.local/share/archon >/dev/null
+git clone https://github.com/rmay/archon.git ~/.local/share/archon >/dev/null
 
 # Use custom branch if instructed
 if [[ -n "$ARCHON_REF" ]]; then
