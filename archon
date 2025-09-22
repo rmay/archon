@@ -1,1 +1,0 @@
-eval "$(wget -qO- https://raw.githubusercontent.com/rmay/archon/refs/heads/master/boot.sh)"
