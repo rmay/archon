@@ -6,7 +6,7 @@ mkdir -p "$MENU_DIR"
 echo "Creating default dock configuration..."
     
 # Create WMDock configuration with default applications
-cat > "$HOME/GNUstep/Defaults/WMState" << 'EOF'
+cat > "$HOME/GNUstep/Defaults/WMState.default" << 'EOF'
 {
   Dock = {
     Applications800 = (
@@ -162,18 +162,24 @@ cat > "$HOME/GNUstep/Defaults/WMState" << 'EOF'
 }
 EOF
 
-cp "$HOME/GNUstep/Defaults/WMState" "$HOME/GNUstep/Defaults/WMState.default"
 
+if [ ! -f "$HOME/GNUstep/Defaults/WMState" ]; then
+  cp "$HOME/GNUstep/Defaults/WMState.default" "$HOME/GNUstep/Defaults/WMState"
+fi
 
-cat > "$HOME/GNUstep/Defaults/WMWindowAttributes" << "EOF"
+if [ ! -f "$HOME/GNUstep/Defaults/WMWindowAttributes" ]; then
+  cat > "$HOME/GNUstep/Defaults/WMWindowAttributes" << "EOF"
 
 EOF
+fi
 
 echo "Dock configuration created"
 
 
 # Create Window Maker preferences
 echo "Creating Window Maker preferences..."
+
+if [ ! -f "$HOME/GNUstep/Defaults/WindowMaker" ]; then
 
 cat > "$HOME/GNUstep/Defaults/WindowMaker" << 'EOF'
 {
@@ -241,11 +247,12 @@ cat > "$HOME/GNUstep/Defaults/WindowMaker" << 'EOF'
   MaximizeKey = "Mod4+Up";
 }
 EOF
-    
+fi
+
 echo "Window Maker preferences created"
 
 # Create basic Window Maker menu configuration
-cat > "$MENU_DIR/WMRootMenu" << 'EOF'
+cat > "$MENU_DIR/WMRootMenu.default" << 'EOF'
 (
   "ARCHON",
   (Run..., EXEC, "%a(Run,Type command to run:)"),
@@ -317,13 +324,16 @@ cat > "$MENU_DIR/WMRootMenu" << 'EOF'
 )
 EOF
 
-cp $MENU_DIR/WMRootMenu $MENU_DIR/WMRootMenu.default
-
+if [ ! -f "$HOME/GNUstep/Defaults/WMRootMenu" ]; then
+  cp "$MENU_DIR/WMRootMenu.default" "$MENU_DIR/WMRootMenu"
+fi
 
 echo "Window Maker menu created"
 
 echo "Setting up xbindkeys"
 yay -S --noconfirm --needed xbindkeys
+
+if [ ! -f "$HOME/.xbindkeysrc" ]; then
 cat > "$HOME/.xbindkeysrc" << 'EOF'
 # Arhcon terminal
 "archon-terminal"
@@ -353,5 +363,5 @@ cat > "$HOME/.xbindkeysrc" << 'EOF'
 "flameshot screen -p ~/Pictures"
     Alt + F12
 EOF
-
+fi
 echo "xbindkeys done"
