@@ -4,10 +4,15 @@ ARCHON_VERSION=$(git -C ~/.local/share/archon describe --tags --abbrev=0 2>/dev/
 PATH="$PATH:$HOME/.local/share/archon/bin"
 
 
+show_name() {
+  tte "Welcome, $ARCHON_USER_NAME" laseretch --etch-speed 2 --etch-delay 5 --etch-direction row_top_to_bottom --cool-gradient-stops ffe680 ff7b00 --laser-gradient-stops ffffff 376cff --spark-gradient-stops ffffff ffe680 ff7b00 1a0900 --spark-cooling-frames 10 --final-gradient-stops 8A008A 00D1FF ffffff --final-gradient-steps 8  --final-gradient-frames 5 --final-gradient-direction vertical
+}
+
 show_ascii_art() {
   clear
-  tte -i ~/.local/share/archon/logo.txt --frame-rate 640 --no-color expand
+  tte -i ~/.local/share/archon/logo.txt --frame-rate 640 burn --burn-colors ffffff fff75d fe650d 8a003c 510100 --final-gradient-stops 00c3ff ffff1c --final-gradient-steps 12
   echo "                                                                          $ARCHON_VERSION"
+  show_name
 }
 
 main_menu() {
