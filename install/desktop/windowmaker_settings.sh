@@ -17,7 +17,8 @@ cat > "$HOME/GNUstep/Defaults/WMState.default" << 'EOF'
         AutoLaunch = No;
         Position = "0,0";
         Lock = No;
-        Command = "/usr/bin/WPrefs";
+        Command = "wmmenu";
+        DoubleCommand = "/usr/bin/WPrefs";
       },
       {
         Forced = No;

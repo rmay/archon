@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# Window Maker Root Menu opener
+# Opens the root window menu by simulating a right-click on the desktop
+
+xdotool mousemove_relative -- -50 0
+sleep 0.1
+xdotool click --window root 3
